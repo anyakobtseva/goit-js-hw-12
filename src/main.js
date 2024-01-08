@@ -25,7 +25,7 @@ form.addEventListener('submit', event => {
   event.preventDefault();
   const query = event.target.search.value;
   gallery.innerHTML = null;
-  loader.style.display = 'inline-block';
+  loader.style.display = 'flex';
   const searchParams = new URLSearchParams({
     key: API_KEY,
     q: query,
@@ -44,7 +44,6 @@ form.addEventListener('submit', event => {
         });
         return;
       }
-
       gallery.append(...images.hits.map(image => createGalleryItem(image)));
       ligthbox.refresh();
     })
@@ -66,10 +65,10 @@ function createGalleryItem(image) {
   imEl.src = image.webformatURL;
   imEl.title = image.tags;
   imEl.dataset.source = image.largeImageURL;
-  const divEl = document.createElement('div');
-  divEl.className = 'tags';
+  const ulEl = document.createElement('ul');
+  ulEl.className = 'tags';
 
-  const table = generateTable({
+  const lis = generateTags({
     Likes: image.likes,
     Views: image.views,
     Comments: image.comments,
@@ -77,40 +76,21 @@ function createGalleryItem(image) {
   });
 
   linkEl.appendChild(imEl);
-  divEl.appendChild(table);
-  linkEl.appendChild(divEl);
+  ulEl.append(...lis);
+  linkEl.appendChild(ulEl);
   return liEl;
 }
 
-function generateTable(obj) {
-  // creates a <table> element and a <tbody> element
-  const tbl = document.createElement('table');
-  const tblBody = document.createElement('tbody');
-
-  // creates a table row
-  const headerRow = document.createElement('tr');
-  const valuesRow = document.createElement('tr');
-
+function generateTags(obj) {
+  const lis = [];
   Object.keys(obj).forEach(key => {
-    const cell1 = document.createElement('td');
-    const cellText1 = document.createTextNode(`${key}`);
-    cell1.appendChild(cellText1);
-    headerRow.appendChild(cell1);
-    const cell2 = document.createElement('td');
-    const cellText2 = document.createTextNode(`${obj[key]}`);
-    cell2.appendChild(cellText2);
-    valuesRow.appendChild(cell2);
+    const li = document.createElement('li');
+    li.textContent = key;
+    const p = document.createElement('p');
+    p.textContent = obj[key];
+    li.appendChild(p);
+    lis.push(li);
   });
 
-  // add the row to the end of the table body
-  tblBody.append(headerRow, valuesRow);
-
-  // put the <tbody> in the <table>
-  tbl.appendChild(tblBody);
-  // appends <table> into <body>
-  document.body.appendChild(tbl);
-  // sets the border attribute of tbl to '2'
-  tbl.setAttribute('border', '0');
-
-  return tbl;
+  return lis;
 }

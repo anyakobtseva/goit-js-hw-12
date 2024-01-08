@@ -6,6 +6,8 @@ on:
 
 jobs:
   build-and-deploy:
+    env: 
+      VITE_API_KEY: ${{ env.VITE_API_KEY }}
     runs-on: ubuntu-latest
     steps:
       - name: Checkout 🛎️
@@ -13,6 +15,7 @@ jobs:
 
       - name: Install and build 🔧
         run: |
+          echo env
           npm install
           npm run build
 
