@@ -16,10 +16,6 @@ jobs:
 
       - name: Install and build 🔧
         run: |
-          echo ${{ vars.VITE_API_KEY }}
-          echo ${{ vars }}
-          echo ${{ env.VITE_API_KEY }}
-          echo ${{ env }}
           npm install
           npm run build
 
