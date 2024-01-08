@@ -4,10 +4,11 @@ on:
   push:
     branches: [main]
 
+env:
+  VITE_API_KEY: ${{ secrets.VITE_API_KEY }}
+
 jobs:
   build-and-deploy:
-    env: 
-      VITE_API_KEY: ${{ env.VITE_API_KEY }}
     runs-on: ubuntu-latest
     steps:
       - name: Checkout 🛎️
