@@ -5,7 +5,7 @@ on:
     branches: [main]
 
 env:
-  VITE_API_KEY: ${{ vars.VITE_API_KEY }}
+  VITE_API_KEY: ${{ secrets.VITE_API_KEY }}
 
 jobs:
   build-and-deploy:
