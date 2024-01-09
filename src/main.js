@@ -24,7 +24,7 @@ iziToast.settings({
 form.addEventListener('submit', event => {
   event.preventDefault();
   const query = event.target.search.value;
-  gallery.innerHTML = null;
+  gallery.innerHTML = '';
   loader.style.display = 'flex';
   const searchParams = new URLSearchParams({
     key: API_KEY,
@@ -48,7 +48,10 @@ form.addEventListener('submit', event => {
       ligthbox.refresh();
     })
     .catch(error => {
-      console.error(error);
+        iziToast.error({
+            message:
+              error.message,
+          });
     })
     .finally(() => (loader.style.display = 'none'));
 });
