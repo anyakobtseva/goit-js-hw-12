@@ -41,16 +41,18 @@
 }
 
 .gallery {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-  gap: 1em;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 20px;
+  padding-top: 24px;
+  padding-bottom: 24px;
 }
 
 .gallery-item {
   list-style-type: none;
   list-style-position: inside;
   border: 1px solid black;
-  width: 20rem;
 }
 
 .gallery-image:hover {
@@ -59,12 +61,11 @@
 }
 
 .gallery-image {
-  width: 100%;
-  height: 70%;
+  width: 360px;
+  height: 200px;
 }
 
 .tags {
-  display: flex;
   list-style-type: none;
   text-align: center;
   margin: 0;
@@ -73,10 +74,9 @@
 
 .tags li {
   text-decoration: none;
-  width: 100%;
   float: left;
-  padding: 8px;
-  color: black
+  padding: 16px;
+  color: black;
 }
 
 .loader{
