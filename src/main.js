@@ -1,5 +1,6 @@
 import SimpleLightbox from 'simplelightbox';
 import iziToast from 'izitoast';
+import axios from 'axios';
 // Додатковий імпорт стилів
 import 'izitoast/dist/css/iziToast.min.css';
 import 'simplelightbox/dist/simple-lightbox.min.css';
@@ -21,7 +22,7 @@ iziToast.settings({
   closeOnEscape: true,
 });
 
-form.addEventListener('submit', event => {
+form.addEventListener('submit', async event => {
   event.preventDefault();
   const query = event.target.search.value;
   gallery.innerHTML = '';
@@ -33,30 +34,26 @@ form.addEventListener('submit', event => {
     orientation: 'horizontal',
     safesearch: true,
   });
-
-  fetch(`${PIXABAY_URL}?${searchParams}`)
-    .then(response => response.json())
-    .then(images => {
-      if (images.hits.length == 0) {
-        iziToast.error({
-          message:
-            'Sorry, there are no images matching your search query. Please, try again!',
-        });
-        return;
-      }
-      gallery.append(...images.hits.map(image => createGalleryItem(image)));
-      ligthbox.refresh();
-    })
-    .catch(error => {
-        iziToast.error({
-            message:
-              error.message,
-          });
-    })
-    .finally(() => (loader.style.display = 'none'));
+  try {
+    const images = await axios.get(`${PIXABAY_URL}?${searchParams}`);
+    if (images.data.hits.length === 0) {
+      iziToast.error({
+        message:
+          'Sorry, there are no images matching your search query. Please, try again!',
+      });
+    }
+    gallery.append(...images.data.hits.map(image => createGalleryItem(image)));
+    ligthbox.refresh();
+  } catch (error) {
+    iziToast.error({
+      message: error.message,
+    });
+  } finally {
+    loader.style.display = 'none';
+  }
 });
 
-function createGalleryItem(image) {
+const createGalleryItem = image => {
   const liEl = document.createElement('li');
   liEl.className = 'gallery-item';
   const linkEl = document.createElement('a');
@@ -82,9 +79,9 @@ function createGalleryItem(image) {
   ulEl.append(...lis);
   linkEl.appendChild(ulEl);
   return liEl;
-}
+};
 
-function generateTags(obj) {
+const generateTags = (obj) => {
   const lis = [];
   Object.keys(obj).forEach(key => {
     const li = document.createElement('li');
