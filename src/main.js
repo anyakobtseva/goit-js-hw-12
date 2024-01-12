@@ -12,6 +12,17 @@ const PIXABAY_URL = 'https://pixabay.com/api/';
 const API_KEY = import.meta.env.VITE_API_KEY;
 const ligthbox = new SimpleLightbox('.gallery a');
 const loadMoreBt = document.querySelector('.bt');
+let totalPages;
+
+iziToast.settings({
+  timeout: 3000,
+  resetOnHover: true,
+  icon: null,
+  position: 'topRight',
+  close: false,
+  closeOnClick: true,
+  closeOnEscape: true,
+});
 
 const config = {
   params: {
@@ -25,16 +36,6 @@ const config = {
   },
 };
 
-iziToast.settings({
-  timeout: 10000,
-  resetOnHover: true,
-  icon: null,
-  position: 'topRight',
-  close: false,
-  closeOnClick: true,
-  closeOnEscape: true,
-});
-
 form.addEventListener('submit', async event => {
   event.preventDefault();
   const query = event.target.search.value;
@@ -43,31 +44,49 @@ form.addEventListener('submit', async event => {
   gallery.innerHTML = '';
   loader.style.display = 'flex';
 
+  await renderGallery(config);
+});
+
+loadMoreBt.addEventListener('click', async () => {
+  config.params.page += 1;
+  await renderGallery(config);
+  const item = document.querySelector('.gallery-item');
+  const { height } = item.getBoundingClientRect();
+  window.scrollBy({
+    top: height * 2,
+    left: 0,
+    behavior: 'smooth',
+  });
+});
+
+const renderGallery = async config => {
   try {
-    const images = await axios.get(PIXABAY_URL, config);
-    if (images.data.hits.length === 0) {
+    const images = (await axios.get(PIXABAY_URL, config)).data;
+    if (images.hits.length === 0) {
       throw new Error(
         'Sorry, there are no images matching your search query. Please, try again!'
       );
     }
-    gallery.append(...images.data.hits.map(image => createGalleryItem(image)));
+    if (config.params.page == 1) {
+      totalPages = Math.ceil(images.totalHits / config.params.per_page);
+    }
+    gallery.append(...images.hits.map(image => createGalleryItem(image)));
     ligthbox.refresh();
+    if (config.params.page == totalPages) {
+      throw new Error(
+        "We're sorry, but you've reached the end of search results."
+      );
+    }
     loadMoreBt.style.display = 'block';
   } catch (error) {
+    loadMoreBt.style.display = 'none';
     iziToast.error({
       message: error.message,
     });
   } finally {
     loader.style.display = 'none';
   }
-});
-
-loadMoreBt.addEventListener('click', async () => {
-  config.params.page += 1;
-  const images = await axios.get(PIXABAY_URL, config);
-  gallery.append(...images.data.hits.map(image => createGalleryItem(image)));
-  ligthbox.refresh();
-});
+};
 
 const createGalleryItem = image => {
   const liEl = document.createElement('li');

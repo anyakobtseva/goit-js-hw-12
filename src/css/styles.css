@@ -84,6 +84,7 @@
 .bt {
   text-align: center;
   display: none;
+  margin-bottom: 25px;
 }
 
 .loader{
