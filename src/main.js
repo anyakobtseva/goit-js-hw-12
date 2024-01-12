@@ -11,6 +11,19 @@ const loader = document.querySelector('.loader');
 const PIXABAY_URL = 'https://pixabay.com/api/';
 const API_KEY = import.meta.env.VITE_API_KEY;
 const ligthbox = new SimpleLightbox('.gallery a');
+const loadMoreBt = document.querySelector('.bt');
+
+const config = {
+  params: {
+    key: API_KEY,
+    image_type: 'photo',
+    per_page: 40,
+    orientation: 'horizontal',
+    safesearch: true,
+    page: 1,
+    q: '',
+  },
+};
 
 iziToast.settings({
   timeout: 10000,
@@ -25,25 +38,21 @@ iziToast.settings({
 form.addEventListener('submit', async event => {
   event.preventDefault();
   const query = event.target.search.value;
+  config.params.q = query;
+  config.params.page = 1;
   gallery.innerHTML = '';
   loader.style.display = 'flex';
-  const searchParams = new URLSearchParams({
-    key: API_KEY,
-    q: query,
-    image_type: 'photo',
-    orientation: 'horizontal',
-    safesearch: true,
-  });
+
   try {
-    const images = await axios.get(`${PIXABAY_URL}?${searchParams}`);
+    const images = await axios.get(PIXABAY_URL, config);
     if (images.data.hits.length === 0) {
-      iziToast.error({
-        message:
-          'Sorry, there are no images matching your search query. Please, try again!',
-      });
+      throw new Error(
+        'Sorry, there are no images matching your search query. Please, try again!'
+      );
     }
     gallery.append(...images.data.hits.map(image => createGalleryItem(image)));
     ligthbox.refresh();
+    loadMoreBt.style.display = 'block';
   } catch (error) {
     iziToast.error({
       message: error.message,
@@ -51,6 +60,13 @@ form.addEventListener('submit', async event => {
   } finally {
     loader.style.display = 'none';
   }
+});
+
+loadMoreBt.addEventListener('click', async () => {
+  config.params.page += 1;
+  const images = await axios.get(PIXABAY_URL, config);
+  gallery.append(...images.data.hits.map(image => createGalleryItem(image)));
+  ligthbox.refresh();
 });
 
 const createGalleryItem = image => {
@@ -81,7 +97,7 @@ const createGalleryItem = image => {
   return liEl;
 };
 
-const generateTags = (obj) => {
+const generateTags = obj => {
   const lis = [];
   Object.keys(obj).forEach(key => {
     const li = document.createElement('li');
@@ -93,4 +109,4 @@ const generateTags = (obj) => {
   });
 
   return lis;
-}
+};
